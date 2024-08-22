@@ -1,5 +1,10 @@
 const User = require("../models/user");
-//Get /users
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  INTERNAL_SERVER_ERROR,
+} = require("../utils/errors");
+
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => {
@@ -7,7 +12,9 @@ const getUsers = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      return res.status(500).send({ message: err.message });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -47,9 +54,3 @@ const getUser = (req, res) => {
 };
 
 module.exports = { getUsers, createUser, getUser };
-
-//GET /users — returns all users
-
-//GET /users/:userId - returns a user by _id
-
-//POST /users — creates a new user
