@@ -1,10 +1,11 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../utils/config");
 const User = require("../models/user");
 const {
-  invalidData400,
+  BAD_REQUEST,
   NOT_FOUND,
-  defaultError500,
+  INTERNAL_SERVER_ERROR,
   requestConflict409,
   unauthorizedReq401,
 } = require("../utils/errors");
@@ -44,7 +45,7 @@ const createUser = async (req, res) => {
   } catch (err) {
     console.error("createUser error name:", err.name);
     if (err.name === "ValidationError") {
-      return res.status(invalidData400).send({ message: "Invalid data" });
+      return res.status(BAD_REQUEST).send({ message: "Invalid data" });
     }
     if (err.code === 11000) {
       return res.status(requestConflict409).send({
@@ -53,7 +54,7 @@ const createUser = async (req, res) => {
       });
     }
     return res
-      .status(defaultError500)
+      .status(INTERNAL_SERVER_ERROR)
       .send({ message: "An error has occurred on the server." });
   }
 };
@@ -75,7 +76,7 @@ const login = (req, res) => {
           .status(unauthorizedReq401)
           .send({ message: "unauthorized request" });
       }
-      return res.status(defaultError500).send({
+      return res.status(INTERNAL_SERVER_ERROR).send({
         message: "Internal server error from the catch in the login controller",
       });
     });
@@ -91,12 +92,12 @@ const getCurrentUser = async (req, res) => {
     return res.status(200).send(user);
   } catch (error) {
     return res
-      .status(defaultError500)
+      .status(INTERNAL_SERVER_ERROR)
       .send({ error: "Could not find user from getCurrentUser controller" });
   }
 };
 
-const modifyUsreData = async (req, res) => {
+const modifyUserData = async (req, res) => {
   try {
     const updates = { name: req.body.name, avatar: req.body.avatar };
     const updatedUser = await User.findByIdAndUpdate(req.user._id, updates, {
@@ -106,7 +107,7 @@ const modifyUsreData = async (req, res) => {
       const error = new Error(
         "User ID not found in this coming from modifyUserData"
       );
-      error.statusCode = itemNotFound404;
+      error.statusCode = NOT_FOUND;
       throw error;
     });
 
@@ -117,14 +118,14 @@ const modifyUsreData = async (req, res) => {
       return res.status(error).send({ message: error.message });
     }
     if (error.name === "ValidationError") {
-      return res.status(invalidData400).send({
+      return res.status(BAD_REQUEST).send({
         message: "provided data is incorrect",
       });
     }
     return res
-      .status(defaultError500)
+      .status(INTERNAL_SERVER_ERROR)
       .send({ error: "Could not update user from modifyUserData" });
   }
 };
 
-module.exports = { createUser, login, getCurrentUser, modifyUsreData };
+module.exports = { createUser, login, getCurrentUser, modifyUserData };
