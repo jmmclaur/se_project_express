@@ -3,6 +3,7 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
+  FORBIDDEN,
 } = require("../utils/errors");
 
 const createItem = (req, res) => {
@@ -37,9 +38,31 @@ const getItems = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
-  ClothingItem.findByIdAndDelete(itemId)
+  ClothingItem.findById(itemId)
     .orFail()
-    .then(() =>
+    .then((item) => {
+      if (String(item.owner) !== req.user._id) {
+        return res.status(FORBIDDEN).send({ message: "Access unauthorized" });
+      }
+      return item
+        .deleteOne()
+        .then(() => res.status(200).send({ message: "Successfully deleted" }));
+    })
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).SEND({ message: "Document not found" });
+      }
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .SEND({ message: "An error has occurred on the server" });
+    });
+};
+
+/*
       res.send({
         message: "Item successfully deleted",
       })
@@ -57,8 +80,8 @@ const deleteItem = (req, res) => {
       return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error has occurred on the server" });
-    });
-};
+    }); 
+}; */
 
 const likeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(

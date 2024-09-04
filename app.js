@@ -17,18 +17,10 @@ mongoose
 
 app.use(express.json());
 
-/*
-app.use((req, res, next) => {
-  req.user = {
-    _id: "66c2b6c70bc7f403d818b9d5",
-  };
-  next();
-}); */
+app.use(cors());
 
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-app.use(cors());
