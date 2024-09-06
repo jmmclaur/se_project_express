@@ -62,28 +62,30 @@ const createUser = async (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
 
-  User.findUserByCredentials(email, password);
   if (!email || !password) {
     return res
       .status(BAD_REQUEST)
       .send({ message: "The password and email fields are required" });
   }
-  return ((user) => {
-    const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-      expiresIn: "7d",
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+      res.status(200).send({ token });
+    })
+    .catch((err) => {
+      console.error("Login error:", err.message);
+      if (err.message === "Incorrect password or email") {
+        return res
+          .status(unauthorizedReq401)
+          .send({ message: "Unauthorized request" });
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({
+        message: "Internal server error from the catch in the login controller",
+      });
     });
-    res.status(200).send({ token });
-  }).catch((err) => {
-    console.error("Login error:", err.message);
-    if (err.message === "Incorrect password or email") {
-      return res
-        .status(unauthorizedReq401)
-        .send({ message: "Unauthorized request" });
-    }
-    return res.status(INTERNAL_SERVER_ERROR).send({
-      message: "Internal server error from the catch in the login controller",
-    });
-  });
 };
 
 const getCurrentUser = async (req, res) => {
