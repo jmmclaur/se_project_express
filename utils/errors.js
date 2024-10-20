@@ -1,15 +1,33 @@
-const BAD_REQUEST = 400;
-const NOT_FOUND = 404;
-const INTERNAL_SERVER_ERROR = 500;
-const requestConflict409 = 409;
-const unauthorizedReq401 = 401;
-const FORBIDDEN = 403;
+import { BadRequestError } from "../errors/BadRequestError";
+import { NotFound } from "../errors/NotFound";
+import { DuplicateError } from "../errors/DuplicateError";
+import { Default } from "../errors/Default";
+import { NotAuthorized } from "../errors/NotAuthorized";
+import { ForbiddenError } from "../errors/ForbiddenError";
 
-module.exports = {
-  BAD_REQUEST,
-  NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
-  requestConflict409,
-  unauthorizedReq401,
-  FORBIDDEN,
+function handleErrors(err, next) {
+  console.error(err);
+  if (err.name === "ValidationError" || err.name === "CastError") {
+    return next(new BadRequestError("Bad Request"));
+  }
+  if (err.name === "DocumentNotFoundError") {
+    return next(new NotFound("Not Found"));
+  }
+  if (err.code === 11000) {
+    return next(new DuplicateError("Duplicate Error"));
+  }
+  if (err.statusCode === 401) {
+    return next(new NotAuthorized("Not Authorized Error"));
+  }
+  return next(new Default("Server Error"));
+}
+
+export default {
+  handleErrors,
+  BadRequestError,
+  NotFound,
+  DuplicateError,
+  Default,
+  NotAuthorized,
+  ForbiddenError,
 };

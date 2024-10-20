@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const { NOT_FOUND } = require("../utils/errors");
-
+const { NOT_FOUND } = require("../utils/errors").default;
+const { NotFound } = require("../errors/NotFound");
 const userRouter = require("./users");
 const itemRouter = require("./clothingItems");
 
@@ -15,6 +15,10 @@ router.post("/signup", createUser);
 
 router.use((req, res) => {
   res.status(NOT_FOUND).send({ message: "Resource not found" });
+});
+
+router.use(() => {
+  throw new NotFound("Resource not found");
 });
 
 module.exports = router;

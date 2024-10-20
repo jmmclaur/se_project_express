@@ -1,37 +1,37 @@
 const ClothingItem = require("../models/clothingItem");
-const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
-  FORBIDDEN,
-} = require("../utils/errors");
+const { handleErrors } = require("../utils/errors");
+const { OKAY_REQUEST, CREATE_REQUEST } = require("../utils/errors");
+const { DEFAULT } = require("./users").default;
+const BadRequestError = require("../errors/BadRequstError");
+const { ForbiddenError } = require("../errors/ForbiddenError");
 
-const createItem = (req, res) => {
+const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
-    .then((item) => {
-      res.send({ data: item });
-    })
-    .catch((error) => {
-      if (error.name === "ValidationError") {
-        res.status(BAD_REQUEST).send({ message: "Validation Error" });
-      } else {
-        res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "An error has occurred on the server" });
-      }
-    });
+  if (!name || name.length < 2) {
+    throw new BadRequestError("Validation Error");
+  }
+  return ClothingItem.create({
+    name,
+    weather,
+    imageUrl,
+    owner: req.user._id,
+  }).then((item) => {
+    res
+      .status(CREATE_REQUEST)
+      .send({ data: item })
+      .catch((err) => {
+        handleErrors(err, next);
+      });
+  });
 };
 
-const getItems = (req, res) => {
+const getItems = (req, res, next) => {
   ClothingItem.find({})
-    .then((items) => res.send(items))
+    .then((items) => res.status(OKAY_REQUEST).send(items))
     .catch((err) => {
       console.error(err);
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
+      return next(new DEFAULT("An error has occurred on the server"));
     });
 };
 
@@ -42,46 +42,16 @@ const deleteItem = (req, res) => {
     .orFail()
     .then((item) => {
       if (String(item.owner) !== req.user._id) {
-        return res.status(FORBIDDEN).send({ message: "Access unauthorized" });
+        return next(new ForbiddenError("Access unauthorized"));
       }
       return item
         .deleteOne()
-        .then(() => res.status(200).send({ message: "Successfully deleted" }));
+        .then(() => res.send({ message: "Successfully deleted" }));
     })
     .catch((err) => {
-      console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "Document not found" });
-      }
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
-      }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .SEND({ message: "An error has occurred on the server" });
+      handleErrors(err, next);
     });
 };
-
-/*
-      res.send({
-        message: "Item successfully deleted",
-      })
-    )
-    .catch((err) => {
-      console.error(`Error ${err.name} with message ${err.message}`);
-
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "Document not found" });
-      }
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
-      }
-
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
-    }); 
-}; */
 
 const likeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
@@ -91,21 +61,10 @@ const likeItem = (req, res) => {
   )
     .orFail()
     .then((item) => {
-      res.send({ data: item });
+      res.status(OKAY_REQUEST).send({ data: item });
     })
     .catch((err) => {
-      console.error(`Error ${err.name} with message ${err.message}`);
-
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "Document not found" });
-      }
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
-      }
-
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
+      handleErrors(err, next);
     });
 };
 
@@ -117,21 +76,10 @@ const dislikeItem = (req, res) => {
   )
     .orFail()
     .then((item) => {
-      res.send({ data: item });
+      res.status(OKAY_REQUEST).send({ data: item });
     })
     .catch((err) => {
-      console.error(`Error ${err.name} with message ${err.message}`);
-
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "Document not found" });
-      }
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
-      }
-
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
+      handleErrors(err, next);
     });
 };
 

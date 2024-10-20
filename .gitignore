@@ -13,3 +13,7 @@ node_modules
 .DS_Store
 .idea
 .vscode
+
+# sprint 15 add-ons
+*.log
+.env
