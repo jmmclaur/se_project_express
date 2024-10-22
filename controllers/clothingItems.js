@@ -1,7 +1,7 @@
 const ClothingItem = require("../models/clothingItem");
 const { handleErrors } = require("../utils/errors");
 const { OKAY_REQUEST, CREATE_REQUEST } = require("../utils/errors");
-const { DEFAULT } = require("./users").default;
+const { DEFAULT } = require("./users");
 const BadRequestError = require("../utils/errors/BadRequestError");
 const { ForbiddenError } = require("../utils/errors/ForbiddenError");
 
@@ -34,7 +34,7 @@ const getItems = (req, res, next) => {
     });
 };
 
-const deleteItem = (req, res) => {
+const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
 
   ClothingItem.findById(itemId)
@@ -52,7 +52,7 @@ const deleteItem = (req, res) => {
     });
 };
 
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $addToSet: { likes: req.user._id } },
@@ -67,7 +67,7 @@ const likeItem = (req, res) => {
     });
 };
 
-const dislikeItem = (req, res) => {
+const dislikeItem = (req, res, next) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $pull: { likes: req.user._id } },

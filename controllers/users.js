@@ -77,7 +77,7 @@ const getCurrentUser = (req, res, next) => {
     });
 };
 
-const modifyUserData = async (req, res) => {
+const modifyUserData = async (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     { name: req.body.name, avatar: req.body.avatar },

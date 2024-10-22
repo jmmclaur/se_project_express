@@ -1,9 +1,9 @@
-import { BadRequestError } from "../utils/errors/BadRequestError";
-import { NotFound } from "../utils/errors/NotFound";
-import { DuplicateError } from "../utils/errors/DuplicateError";
-import { Default } from "../utils/errors/Default";
-import { NotAuthorized } from "../utils/errors/NotAuthorized";
-import { ForbiddenError } from "../utils/errors/ForbiddenError";
+import { BadRequestError } from "./errors/BadRequestError";
+import { NotFound } from "./errors/NotFound";
+import { DuplicateError } from "./errors/DuplicateError";
+import { Default } from "./errors/Default";
+import { NotAuthorized } from "./errors/NotAuthorized";
+import { ForbiddenError } from "./errors/ForbiddenError";
 
 function handleErrors(err, next) {
   console.error(err);
