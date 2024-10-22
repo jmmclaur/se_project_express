@@ -1,9 +1,9 @@
-import { BadRequestError } from "../errors/BadRequestError";
-import { NotFound } from "../errors/NotFound";
-import { DuplicateError } from "../errors/DuplicateError";
-import { Default } from "../errors/Default";
-import { NotAuthorized } from "../errors/NotAuthorized";
-import { ForbiddenError } from "../errors/ForbiddenError";
+import { BadRequestError } from "../utils/errors/BadRequestError";
+import { NotFound } from "../utils/errors/NotFound";
+import { DuplicateError } from "../utils/errors/DuplicateError";
+import { Default } from "../utils/errors/Default";
+import { NotAuthorized } from "../utils/errors/NotAuthorized";
+import { ForbiddenError } from "../utils/errors/ForbiddenError";
 
 function handleErrors(err, next) {
   console.error(err);
@@ -30,4 +30,12 @@ export default {
   Default,
   NotAuthorized,
   ForbiddenError,
+  BAD_REQUEST: 400,
+  FORBIDDEN_ERROR: 403,
+  NOT_FOUND: 404,
+  DEFAULT: 500,
+  NOT_AUTHORIZED: 401,
+  OKAY_REQUEST: 200,
+  CREATE_REQUEST: 201,
+  DUPLICATE_ERROR: 409,
 };

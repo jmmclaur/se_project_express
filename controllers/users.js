@@ -1,8 +1,14 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const JWT_SECRET = require("../utils/config");
 const User = require("../models/user");
-const { BadRequestError } = require("../errors/BadRequstError");
-const { NotAuthorized } = require("../errors/NotAuthorized");
+const { BadRequestError } = require("../utils/errors/BadRequestError");
+const { NotAuthorized } = require("../utils/errors/NotAuthorized");
+const {
+  OKAY_REQUEST,
+  CREATE_REQUEST,
+  handleErrors,
+} = require("../utils/errors");
 
 const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
@@ -40,7 +46,7 @@ const login = (req, res, next) => {
     .select("+password")
     .then(async (user) => {
       if (!user) {
-        throw new NotAuthorized("NotAuthorizedError"); //does "error" need to be listed a certain way?
+        throw new NotAuthorized("NotAuthorizedError");
       }
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {

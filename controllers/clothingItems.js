@@ -2,28 +2,27 @@ const ClothingItem = require("../models/clothingItem");
 const { handleErrors } = require("../utils/errors");
 const { OKAY_REQUEST, CREATE_REQUEST } = require("../utils/errors");
 const { DEFAULT } = require("./users").default;
-const BadRequestError = require("../errors/BadRequstError");
-const { ForbiddenError } = require("../errors/ForbiddenError");
+const BadRequestError = require("../utils/errors/BadRequestError");
+const { ForbiddenError } = require("../utils/errors/ForbiddenError");
 
-const createItem = (req, res, next) => {
+const createItem = async (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
 
   if (!name || name.length < 2) {
     throw new BadRequestError("Validation Error");
   }
-  return ClothingItem.create({
+  const item = await ClothingItem.create({
     name,
     weather,
     imageUrl,
     owner: req.user._id,
-  }).then((item) => {
-    res
-      .status(CREATE_REQUEST)
-      .send({ data: item })
-      .catch((err) => {
-        handleErrors(err, next);
-      });
   });
+  res
+    .status(CREATE_REQUEST)
+    .send({ data: item })
+    .catch((err) => {
+      handleErrors(err, next);
+    });
 };
 
 const getItems = (req, res, next) => {
