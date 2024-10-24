@@ -1,9 +1,9 @@
-import { BadRequestError } from "./errors/BadRequestError";
-import { NotFound } from "./errors/NotFound";
-import { DuplicateError } from "./errors/DuplicateError";
-import { Default } from "./errors/Default";
-import { NotAuthorized } from "./errors/NotAuthorized";
-import { ForbiddenError } from "./errors/ForbiddenError";
+const { BadRequestError } = require("./errors/BadRequestError");
+const { NotFound } = require("./errors/NotFound");
+const { DuplicateError } = require("./errors/DuplicateError");
+const { Default } = require("./errors/Default");
+const { NotAuthorized } = require("./errors/NotAuthorized");
+const { ForbiddenError } = require("./errors/ForbiddenError");
 
 function handleErrors(err, next) {
   console.error(err);
@@ -22,7 +22,7 @@ function handleErrors(err, next) {
   return next(new Default("Server Error"));
 }
 
-export default {
+module.exports = {
   handleErrors,
   BadRequestError,
   NotFound,

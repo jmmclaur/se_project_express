@@ -59,5 +59,3 @@ app.use((error, req, res, next) => {
   res.status(error.statusCode).send({ message: error.message });
   next();
 });
-
-app.listen(PORT, () => {});
