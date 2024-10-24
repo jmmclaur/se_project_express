@@ -33,8 +33,6 @@ const { login, createUser } = require("./controllers/users");
 
 const mainRouter = require("./routes/index");
 
-app.use("/", mainRouter);
-
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
   .then(() => {})
@@ -50,6 +48,8 @@ app.get("/crash-test", () => {
 });
 app.post("/signin", validateAuthentication, login);
 app.post("/signup", validateUserBody, createUser);
+
+app.use("/", mainRouter);
 
 app.use(errorLogger);
 

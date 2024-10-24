@@ -5,21 +5,18 @@ const { DEFAULT } = require("./users");
 const BadRequestError = require("../utils/errors/BadRequestError");
 const { ForbiddenError } = require("../utils/errors/ForbiddenError");
 
-const createItem = async (req, res, next) => {
+const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
-
   if (!name || name.length < 2) {
-    throw new BadRequestError("Validation Error");
+    throw new BadRequestError("Invalid data");
   }
-  const item = await ClothingItem.create({
+  return ClothingItem.create({
     name,
     weather,
     imageUrl,
     owner: req.user._id,
-  });
-  res
-    .status(CREATE_REQUEST)
-    .send({ data: item })
+  })
+    .then((item) => res.status(CREATE_REQUEST).send(item))
     .catch((err) => {
       handleErrors(err, next);
     });
