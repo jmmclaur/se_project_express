@@ -5,6 +5,47 @@ const cors = require("cors");
 
 const app = express();
 const { PORT = 3001 } = process.env;
+const { errors } = require("celebrate");
+
+const allowedOrigins = [
+  "https://wtwr.jmmclaur.jumpingcrab.com",
+  "http://localhost:3000",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (allowedOrigins.includes(origin) || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  })
+);
+
+app.options(
+  "*",
+  cors({
+    origin: (origin, callback) => {
+      if (allowedOrigins.includes(origin) || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  })
+);
+
+const { requestLogger, errorLogger } = require("./middlewares/logger");
+const {
+  validateUserBody,
+  validateAuthentication,
+} = require("./middlewares/validation");
 
 mongoose.set("strictQuery", false);
 
@@ -16,18 +57,10 @@ mongoose
   .catch(console.error);
 
 app.use(express.json());
-app.use(cors());
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-const { errors } = require("celebrate");
-const { requestLogger, errorLogger } = require("./middlewares/logger");
-const {
-  validateUserBody,
-  validateAuthentication,
-} = require("./middlewares/validation");
 
 const { login, createUser } = require("./controllers/users");
 
@@ -40,7 +73,7 @@ mongoose
 app.use(express.json());
 app.use(requestLogger);
 
-app.use(cors());
+//app.use(cors());
 app.get("/crash-test", () => {
   setTimeout(() => {
     throw new Error("Server will crash");
